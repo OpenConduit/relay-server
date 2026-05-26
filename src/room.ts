@@ -223,7 +223,7 @@ export class RoomManager {
     const room = this.rooms.get(roomId);
     if (!room || !this.assertLock(room, participantId)) return;
     room.messages.push(message);
-    this.broadcastAll(roomId, { type: 'message_add', message, participantId });
+    this.broadcastExcept(roomId, participantId, { type: 'message_add', message, participantId });
   }
 
   private handleStreamStart(roomId: string, participantId: string, messageId: string): void {
@@ -280,7 +280,7 @@ export class RoomManager {
   // ─── Helpers ─────────────────────────────────────────────────────────────────
 
   private assertLock(room: Room, participantId: string): boolean {
-    if (room.lockHolder !== participantId) {
+    if (room.lockHolder !== null && room.lockHolder !== participantId) {
       this.broadcastTo(participantId, { type: 'error', message: 'You do not hold the send lock' });
       return false;
     }
